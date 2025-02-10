@@ -2,7 +2,7 @@ import pool from './conexao.js';
 
 export async function retornaMedicos() {
     const conexao = await pool.getConnection();
-    const query = "SELECT id, nome, telefone, email, especialidade FROM medicos";
+    const query = "SELECT id, nome, telefone, email, especialidade FROM medicos ORDER BY nome ASC";
     const [medicos] = await conexao.query(query);
     conexao.release();
     return medicos;
@@ -11,7 +11,7 @@ export async function retornaMedicos() {
 export async function retornaMedicoNome(nome) {
     const conexao = await pool.getConnection();
     const [medicos] = await conexao.query(
-        'SELECT nome, telefone, email, especialidade FROM medicos WHERE LOWER(nome) LIKE LOWER(?)', ['%' + nome + '%']
+        'SELECT nome, telefone, email, especialidade FROM medicos WHERE LOWER(nome) LIKE LOWER(?) ORDER BY nome ASC', ['%' + nome + '%']
     );
 
     for (let medico of medicos) {
@@ -24,7 +24,7 @@ export async function retornaMedicoNome(nome) {
 
 export async function retornaMedicoEspecialidade(especialidade) {
     const conexao = await pool.getConnection();
-        const [especialidadeResult] = await conexao.query('SELECT id FROM especialidades WHERE LOWER(especialidade) LIKE LOWER(?)', ['%' + especialidade + '%']);
+    const [especialidadeResult] = await conexao.query('SELECT id FROM especialidades WHERE LOWER(especialidade) LIKE LOWER(?)', ['%' + especialidade + '%']);
     
     if (especialidadeResult.length === 0) {
         conexao.release();
@@ -32,7 +32,7 @@ export async function retornaMedicoEspecialidade(especialidade) {
     }
     
     const especialidadeId = especialidadeResult[0].id;
-    const [medicos] = await conexao.query('SELECT nome, telefone, email FROM medicos WHERE especialidade = ?', [especialidadeId]);
+    const [medicos] = await conexao.query('SELECT nome, telefone, email FROM medicos WHERE especialidade = ? ORDER BY nome ASC', [especialidadeId]);
     conexao.release();
     return medicos;
 }
